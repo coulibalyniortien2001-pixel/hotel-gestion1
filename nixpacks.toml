@@ -1,2 +1,8 @@
+[phases.build]
+cmds = ["pnpm run build"]
+
+[start]
+cmd = "node dist/main"
+
 [variables]
 NODE_OPTIONS = "--max-old-space-size=460"
