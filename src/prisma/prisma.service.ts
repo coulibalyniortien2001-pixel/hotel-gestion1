@@ -15,7 +15,10 @@ import { Pool } from 'pg';
  * because their semantics will change in pg v9. Replace them with the explicit
  * 'verify-full' (current behaviour) to silence the security warning.
  */
-function normalizeDatabaseUrl(url: string): string {
+function normalizeDatabaseUrl(url: string | undefined): string {
+  if (!url) {
+    throw new Error('DATABASE_URL environment variable is not set');
+  }
   return url.replace(
     /sslmode=(prefer|require|verify-ca)/g,
     'sslmode=verify-full',

@@ -31,8 +31,12 @@ async function bootstrap() {
   );
 
   // ── CORS ─────────────────────────────────────────────────────────────
+  const allowedOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
+    : ['http://localhost:3000'];
+
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -91,7 +95,7 @@ async function bootstrap() {
   });
 
   const port = process.env.PORT ?? 8011;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   console.log(`🚀 PMS API running on:  http://localhost:${port}/api`);
   console.log(`📚 Swagger docs:        http://localhost:${port}/api/docs`);
 }
