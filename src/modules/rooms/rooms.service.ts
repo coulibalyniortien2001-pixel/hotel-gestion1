@@ -12,17 +12,10 @@ import { UpdateRoomDto } from './dto/update-room.dto';
 import { UpdateRoomStatusDto } from './dto/update-room-status.dto';
 import { QueryRoomsDto } from './dto/query-rooms.dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
-
-const DASHBOARD_CACHE_KEY = 'dashboard:stats';
 
 @Injectable()
 export class RoomsService {
-  constructor(
-    private readonly prisma: PrismaService,
-    @InjectRedis() private readonly redis: Redis,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findAll(query: QueryRoomsDto): Promise<PaginatedResponse<unknown>> {
     const {
@@ -140,17 +133,11 @@ export class RoomsService {
 
   async updateStatus(id: number, dto: UpdateRoomStatusDto) {
     await this.findOne(id);
-    const room = await this.prisma.room.update({
+    return this.prisma.room.update({
       where: { id },
       data: { status: dto.status as RoomStatus },
       include: { guest: true },
     });
-    try {
-      await this.redis.del(DASHBOARD_CACHE_KEY);
-    } catch {
-      // Redis unavailable, cache invalidation skipped
-    }
-    return room;
   }
 
   async remove(id: number) {

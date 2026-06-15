@@ -14,12 +14,6 @@ import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { UpdateReservationStatusDto, ReservationStatusEnum } from './dto/update-reservation-status.dto';
 import { QueryReservationsDto } from './dto/query-reservations.dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
-import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
-
-const DASHBOARD_CACHE_KEY = 'dashboard:stats';
 
 const INCLUDE_FULL = {
   guest: true,
@@ -29,11 +23,7 @@ const INCLUDE_FULL = {
 
 @Injectable()
 export class ReservationsService {
-  constructor(
-    private readonly prisma: PrismaService,
-    @InjectQueue('notifications') private readonly notificationsQueue: Queue,
-    @InjectRedis() private readonly redis: Redis,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findAll(query: QueryReservationsDto): Promise<PaginatedResponse<unknown>> {
     const {
@@ -339,27 +329,6 @@ export class ReservationsService {
       }
       return updated;
     });
-
-    await this.redis.del(DASHBOARD_CACHE_KEY).catch(() => undefined);
-
-    // Enqueue notification jobs
-    try {
-      if (dto.status === ReservationStatusEnum.CHECKIN) {
-        await this.notificationsQueue.add('check-in-alert', {
-          reservationId: id,
-          guestId: reservation.guestId,
-          roomId: reservation.roomId,
-        });
-      } else if (dto.status === ReservationStatusEnum.CHECKOUT) {
-        await this.notificationsQueue.add('check-out-alert', {
-          reservationId: id,
-          guestId: reservation.guestId,
-          roomId: reservation.roomId,
-        });
-      }
-    } catch {
-      // Redis unavailable — notification job skipped, status update already committed
-    }
 
     return updatedReservation;
   }

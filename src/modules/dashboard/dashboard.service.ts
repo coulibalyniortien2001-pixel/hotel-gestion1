@@ -1,42 +1,14 @@
 // src/modules/dashboard/dashboard.service.ts
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
-
-const CACHE_KEY = 'dashboard:stats';
-const CACHE_TTL = 60; // seconds
 
 @Injectable()
 export class DashboardService {
-  private readonly logger = new Logger(DashboardService.name);
-
-  constructor(
-    private readonly prisma: PrismaService,
-    @InjectRedis() private readonly redis: Redis,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async getStats() {
-    try {
-      const cached = await this.redis.get(CACHE_KEY);
-      if (cached) {
-        this.logger.debug('Dashboard stats served from Redis cache');
-        return JSON.parse(cached) as unknown;
-      }
-    } catch {
-      this.logger.warn('Redis unavailable, skipping cache read');
-    }
-
-    const stats = await this.computeStats();
-
-    try {
-      await this.redis.setex(CACHE_KEY, CACHE_TTL, JSON.stringify(stats));
-    } catch {
-      // Redis unavailable, serve without caching
-    }
-
-    return stats;
+    return this.computeStats();
   }
 
   private async computeStats() {

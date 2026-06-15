@@ -42,8 +42,6 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@nestjs-modules/ioredis": "^2.2.1",
-    "@nestjs/bull": "^11.0.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",
@@ -57,12 +55,10 @@
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "bcrypt": "^6.0.0",
-    "bull": "^4.16.5",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "dotenv": "^17.4.2",
     "helmet": "^8.1.0",
-    "ioredis": "^5.10.1",
     "nest-winston": "^1.10.2",
     "nodemailer": "^8.0.5",
     "passport": "^0.7.0",
