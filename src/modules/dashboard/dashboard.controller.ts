@@ -81,6 +81,20 @@ export class DashboardController {
     return this.dashboardService.getRevenueRange(from ?? today, to ?? today);
   }
 
+  @Get('resume')
+  @ApiOperation({
+    summary: 'Résumé des activités sur une plage de dates',
+    description: 'Synthèse complète : réservations, événements, dépenses, bénéfice, état des chambres.',
+  })
+  @ApiQuery({ name: 'from', required: false, description: 'Date de début (YYYY-MM-DD, défaut: aujourd\'hui)', example: '2026-06-17' })
+  @ApiQuery({ name: 'to',   required: false, description: 'Date de fin (YYYY-MM-DD, défaut: aujourd\'hui)',   example: '2026-06-17' })
+  @ApiResponse({ status: 200, description: 'Résumé de la période' })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
+  getResume(@Query('from') from?: string, @Query('to') to?: string) {
+    const today = new Date().toISOString().slice(0, 10);
+    return this.dashboardService.getResumePeriode(from ?? today, to ?? today);
+  }
+
   @Get('rapport-mensuel')
   @ApiOperation({
     summary: 'Rapport financier mensuel',
