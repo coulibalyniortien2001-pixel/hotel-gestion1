@@ -133,18 +133,22 @@ export class GuestsService {
   }
 
   async create(dto: CreateGuestDto) {
-    const existing = await this.prisma.guest.findUnique({
-      where: { email: dto.email },
-    });
-    if (existing) {
-      throw new ConflictException(`L'email ${dto.email} est déjà utilisé`);
+    const providedEmail = dto.email && String(dto.email).trim();
+    const email = providedEmail || `noemail-${Date.now()}-${Math.random().toString(36).slice(2)}@noemail.pms`;
+
+    if (providedEmail) {
+      const existing = await this.prisma.guest.findUnique({ where: { email } });
+      if (existing) {
+        throw new ConflictException(`L'email ${email} est déjà utilisé`);
+      }
     }
+
     return this.prisma.guest.create({
       data: {
         firstName: dto.firstName,
         lastName: dto.lastName,
         phone: dto.phone,
-        email: dto.email,
+        email,
         ...(dto.roomId !== undefined && {
           room: { connect: { id: dto.roomId } },
         }),
