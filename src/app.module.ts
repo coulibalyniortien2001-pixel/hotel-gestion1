@@ -14,6 +14,7 @@ import { ReservationsModule } from './modules/reservations/reservations.module';
 import { ServicesModule } from './modules/services/services.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { DepensesModule } from './modules/depenses/depenses.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { ReportsModule } from './modules/reports/reports.module';
     ServicesModule,
     DashboardModule,
     ReportsModule,
+    DepensesModule,
   ],
   controllers: [],
   providers: [],

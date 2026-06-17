@@ -110,3 +110,25 @@ model ReservationService {
 
   @@id([reservationId, serviceId])
 }
+
+enum DepenseCategorie {
+  FOURNITURES
+  ALIMENTATION
+  ENTRETIEN
+  SALAIRES
+  SERVICES
+  EQUIPEMENT
+  AUTRE
+}
+
+model Depense {
+  id         String           @id @default(uuid())
+  libelle    String
+  montant    Decimal          @db.Decimal(10, 2)
+  categorie  DepenseCategorie @default(AUTRE)
+  date       DateTime         @default(now())
+  note       String?
+  createdBy  String?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+}

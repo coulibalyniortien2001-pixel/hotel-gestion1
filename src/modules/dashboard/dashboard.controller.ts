@@ -60,15 +60,37 @@ export class DashboardController {
     summary: 'Revenus journaliers',
     description: 'Agrège les revenus (chambres + services) des réservations CHECKOUT sur N jours.',
   })
-  @ApiQuery({
-    name: 'days',
-    required: false,
-    description: 'Nombre de jours (1–30, défaut: 7)',
-    example: 7,
-  })
+  @ApiQuery({ name: 'days', required: false, description: 'Nombre de jours (1–30, défaut: 7)', example: 7 })
   @ApiResponse({ status: 200, description: 'Revenus par jour' })
   @ApiResponse({ status: 401, description: 'Non authentifié' })
   getRevenue(@Query('days') days?: string) {
     return this.dashboardService.getRevenue(days ? parseInt(days, 10) : 7);
+  }
+
+  @Get('revenue-range')
+  @ApiOperation({
+    summary: 'Revenus & dépenses sur une plage de dates',
+    description: 'Retourne les revenus, dépenses et bénéfice net entre deux dates.',
+  })
+  @ApiQuery({ name: 'from', required: true,  description: 'Date de début (YYYY-MM-DD)', example: '2026-06-01' })
+  @ApiQuery({ name: 'to',   required: true,  description: 'Date de fin (YYYY-MM-DD)',   example: '2026-06-30' })
+  @ApiResponse({ status: 200, description: 'Synthèse financière sur la plage' })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
+  getRevenueRange(@Query('from') from: string, @Query('to') to: string) {
+    const today = new Date().toISOString().slice(0, 10);
+    return this.dashboardService.getRevenueRange(from ?? today, to ?? today);
+  }
+
+  @Get('rapport-mensuel')
+  @ApiOperation({
+    summary: 'Rapport financier mensuel',
+    description: 'Détail jour par jour des revenus, dépenses et bénéfice net pour un mois donné.',
+  })
+  @ApiQuery({ name: 'mois', required: false, description: 'Mois au format YYYY-MM (défaut: mois courant)', example: '2026-06' })
+  @ApiResponse({ status: 200, description: 'Rapport mensuel' })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
+  getRapportMensuel(@Query('mois') mois?: string) {
+    const defaultMois = new Date().toISOString().slice(0, 7);
+    return this.dashboardService.getRapportMensuel(mois ?? defaultMois);
   }
 }

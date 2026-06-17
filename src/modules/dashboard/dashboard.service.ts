@@ -314,6 +314,96 @@ export class DashboardService {
   }
 
   // ──────────────────────────────────────────────────────────────────────
+  // GET /dashboard/revenue-range?from=YYYY-MM-DD&to=YYYY-MM-DD
+  // ──────────────────────────────────────────────────────────────────────
+  async getRevenueRange(from: string, to: string) {
+    const fromDate = new Date(from);
+    fromDate.setHours(0, 0, 0, 0);
+    const toDate = new Date(to);
+    toDate.setHours(23, 59, 59, 999);
+
+    const [reservations, depenses] = await Promise.all([
+      this.prisma.reservation.findMany({
+        where: {
+          status: 'CHECKOUT',
+          checkOut: { gte: fromDate, lte: toDate },
+        },
+        select: { totalAmount: true },
+      }),
+      this.prisma.depense.findMany({
+        where: {
+          date: { gte: fromDate, lte: toDate },
+        },
+        select: { montant: true },
+      }),
+    ]);
+
+    const revenus = reservations.reduce((s, r) => s + Number(r.totalAmount), 0);
+    const depensesTotal = depenses.reduce((s, d) => s + Number(d.montant), 0);
+
+    return {
+      revenus:           Math.round(revenus),
+      depenses:          Math.round(depensesTotal),
+      benefice:          Math.round(revenus - depensesTotal),
+      reservationsCount: reservations.length,
+      depensesCount:     depenses.length,
+    };
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // GET /dashboard/rapport-mensuel?mois=YYYY-MM
+  // ──────────────────────────────────────────────────────────────────────
+  async getRapportMensuel(mois: string) {
+    const [year, month] = mois.split('-').map(Number);
+    const firstDay = new Date(year, month - 1, 1, 0, 0, 0, 0);
+    const lastDay  = new Date(year, month, 0, 23, 59, 59, 999);
+
+    const [reservations, depenses] = await Promise.all([
+      this.prisma.reservation.findMany({
+        where: {
+          status: 'CHECKOUT',
+          checkOut: { gte: firstDay, lte: lastDay },
+        },
+        select: { totalAmount: true, checkOut: true },
+      }),
+      this.prisma.depense.findMany({
+        where: {
+          date: { gte: firstDay, lte: lastDay },
+        },
+        select: { montant: true, date: true },
+      }),
+    ]);
+
+    // Build per-day map
+    const daysInMonth = lastDay.getDate();
+    const parJour: { date: string; revenus: number; depenses: number; net: number }[] = [];
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const key = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const dayRevenus = reservations
+        .filter((r) => new Date(r.checkOut).toISOString().slice(0, 10) === key)
+        .reduce((s, r) => s + Number(r.totalAmount), 0);
+      const dayDepenses = depenses
+        .filter((dep) => new Date(dep.date).toISOString().slice(0, 10) === key)
+        .reduce((s, dep) => s + Number(dep.montant), 0);
+      parJour.push({ date: key, revenus: Math.round(dayRevenus), depenses: Math.round(dayDepenses), net: Math.round(dayRevenus - dayDepenses) });
+    }
+
+    const totalRevenus   = reservations.reduce((s, r)   => s + Number(r.totalAmount), 0);
+    const totalDepenses  = depenses.reduce((s, d)        => s + Number(d.montant), 0);
+
+    return {
+      mois,
+      totalRevenus:      Math.round(totalRevenus),
+      totalDepenses:     Math.round(totalDepenses),
+      beneficeNet:       Math.round(totalRevenus - totalDepenses),
+      reservationsCount: reservations.length,
+      depensesCount:     depenses.length,
+      parJour,
+    };
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
   // GET /dashboard/revenue?days=7
   // ──────────────────────────────────────────────────────────────────────
   async getRevenue(days = 7) {
