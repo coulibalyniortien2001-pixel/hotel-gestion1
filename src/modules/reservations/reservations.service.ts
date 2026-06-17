@@ -305,7 +305,7 @@ export class ReservationsService {
         roomUpdate = { status: 'OCCUPEE', guestId: reservation.guestId };
         break;
       case ReservationStatusEnum.CHECKOUT:
-        roomUpdate = { status: 'NETTOYAGE', guestId: null };
+        roomUpdate = { status: 'LIBRE', guestId: null };
         break;
       case ReservationStatusEnum.NOSHOW:
         roomUpdate = { status: 'LIBRE', guestId: null };
