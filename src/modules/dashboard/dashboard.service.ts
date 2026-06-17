@@ -46,6 +46,7 @@ export class DashboardService {
       this.prisma.reservation.count({
         where: {
           checkOut: { gte: todayStart, lte: todayEnd },
+          status: 'CHECKOUT',
         },
       }),
       this.prisma.reservation.count({ where: { status: 'CONFIRMEE' } }),
