@@ -17,9 +17,10 @@ export class CreateGuestDto {
   @IsString()
   phone: string;
 
-  @ApiProperty({ example: 'jean.dupont@example.com', description: 'Adresse email (unique)' })
+  @ApiPropertyOptional({ example: 'jean.dupont@example.com', description: 'Adresse email (unique)' })
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
 
   @ApiPropertyOptional({ example: 1, minimum: 1, description: 'ID de la chambre à assigner' })
   @IsOptional()
