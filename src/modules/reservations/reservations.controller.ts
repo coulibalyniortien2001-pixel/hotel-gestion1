@@ -35,16 +35,22 @@ export class ReservationsController {
   constructor(private readonly reservationsService: ReservationsService) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Liste des réservations', description: 'Paginée avec filtres (statut, dates, client, chambre, montant).' })
   @ApiResponse({ status: 200, description: 'Liste paginée des réservations' })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
   findAll(@Query() query: QueryReservationsDto) {
     return this.reservationsService.findAll(query);
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Détail d\'une réservation', description: 'Inclut client, chambre et services associés.' })
   @ApiParam({ name: 'id', description: 'UUID de la réservation' })
   @ApiResponse({ status: 200, description: 'Réservation trouvée' })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
   @ApiResponse({ status: 404, description: 'Réservation introuvable' })
   findOne(@Param('id') id: string) {
     return this.reservationsService.findOne(id);

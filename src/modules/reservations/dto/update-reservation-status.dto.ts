@@ -8,6 +8,7 @@ export enum ReservationStatusEnum {
   CHECKIN = 'CHECKIN',
   CHECKOUT = 'CHECKOUT',
   NOSHOW = 'NOSHOW',
+  ANNULEE = 'ANNULEE',
 }
 
 export class UpdateReservationStatusDto {

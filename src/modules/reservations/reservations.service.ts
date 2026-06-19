@@ -313,6 +313,9 @@ export class ReservationsService {
       case ReservationStatusEnum.CONFIRMEE:
         roomUpdate = { status: 'LIBRE', guestId: null };
         break;
+      case ReservationStatusEnum.ANNULEE:
+        roomUpdate = { status: 'LIBRE', guestId: null };
+        break;
     }
 
     const updatedReservation = await this.prisma.$transaction(async (tx) => {

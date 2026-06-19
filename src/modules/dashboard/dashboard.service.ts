@@ -46,7 +46,7 @@ export class DashboardService {
       this.prisma.reservation.count({
         where: {
           checkOut: { gte: todayStart, lte: todayEnd },
-          status: 'CHECKOUT',
+          status: { in: ['CHECKIN', 'CONFIRMEE'] },
         },
       }),
       this.prisma.reservation.count({ where: { status: 'CONFIRMEE' } }),
@@ -510,13 +510,15 @@ export class DashboardService {
           id: `service-${res.id}-${rs.serviceId}`, type: 'service',
           title: `Service — ${rs.service.name}`, titleEn: `Service — ${rs.service.name}`,
           description: `${guestName} · Chambre ${res.room.number} · Qté ${rs.quantity}`,
-          time: res.checkIn.toISOString(),
+          time: (rs.date ?? res.checkIn).toISOString(),
           amount: Number(rs.service.price) * rs.quantity,
           guestId: res.guestId, roomId: res.roomId, reservationId: res.id,
         });
       }
     }
     events.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+    const eventsTotal = events.length;
+    const eventsSlice = events.slice(0, 200);
 
     const totalDepenses = depenses.reduce((s, d) => s + Number(d.montant), 0);
 
@@ -527,7 +529,8 @@ export class DashboardService {
         revenus:   Math.round(revenus),
         parStatut,
       },
-      events,
+      events: eventsSlice,
+      eventsTotal,
       depenses: {
         count: depenses.length,
         total: Math.round(totalDepenses),

@@ -36,18 +36,24 @@ export class GuestsController {
   constructor(private readonly guestsService: GuestsService) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Liste des clients', description: 'Retourne une liste paginée avec filtres.' })
   @ApiResponse({ status: 200, description: 'Liste paginée des clients' })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
   findAll(@Query() query: QueryGuestsDto) {
     return this.guestsService.findAll(query);
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Détail d\'un client', description: 'Inclut les stats (totalStays, totalSpent, lastStay) et les réservations paginées.' })
   @ApiParam({ name: 'id', description: 'UUID du client' })
   @ApiQuery({ name: 'rPage', required: false, type: Number, description: 'Page des réservations (défaut: 1)' })
   @ApiQuery({ name: 'rLimit', required: false, type: Number, description: 'Taille de page des réservations (défaut: 5)' })
   @ApiResponse({ status: 200, description: 'Client trouvé avec stats et réservations' })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
   @ApiResponse({ status: 404, description: 'Client introuvable' })
   findOne(
     @Param('id') id: string,

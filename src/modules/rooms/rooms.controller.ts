@@ -36,16 +36,22 @@ export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Liste des chambres', description: 'Retourne une liste paginée avec filtres (étage, type, statut, prix, client).' })
   @ApiResponse({ status: 200, description: 'Liste paginée des chambres' })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
   findAll(@Query() query: QueryRoomsDto) {
     return this.roomsService.findAll(query);
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Détail d\'une chambre', description: 'Inclut le client actuel et les 5 dernières réservations.' })
   @ApiParam({ name: 'id', type: Number, description: 'ID numérique de la chambre' })
   @ApiResponse({ status: 200, description: 'Chambre trouvée' })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
   @ApiResponse({ status: 404, description: 'Chambre introuvable' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.roomsService.findOne(id);

@@ -133,10 +133,9 @@ export class GuestsService {
   }
 
   async create(dto: CreateGuestDto) {
-    const providedEmail = dto.email && String(dto.email).trim();
-    const email = providedEmail || `noemail-${Date.now()}-${Math.random().toString(36).slice(2)}@noemail.pms`;
+    const email = dto.email?.trim() || null;
 
-    if (providedEmail) {
+    if (email) {
       const existing = await this.prisma.guest.findUnique({ where: { email } });
       if (existing) {
         throw new ConflictException(`L'email ${email} est déjà utilisé`);
