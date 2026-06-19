@@ -89,6 +89,7 @@ model Reservation {
   status        ReservationStatus    @default(CONFIRMEE)
   totalAmount   Decimal              @db.Decimal(10, 2)
   currency      Currency             @default(FCFA)
+  isWalkIn      Boolean              @default(false)
   services      ReservationService[]
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt

@@ -94,6 +94,16 @@ export class QueryReservationsDto extends PaginationDto {
   @IsBoolean()
   active?: boolean;
 
+  @ApiPropertyOptional({ description: 'true = accueils directs uniquement (walk-in)' })
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
+  @IsBoolean()
+  isWalkIn?: boolean;
+
   @ApiPropertyOptional({ example: 100, minimum: 0, description: 'Montant minimum (€)' })
   @IsOptional()
   @Type(() => Number)

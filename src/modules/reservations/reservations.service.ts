@@ -42,6 +42,7 @@ export class ReservationsService {
       date,
       upcoming,
       active,
+      isWalkIn,
       minAmount,
       maxAmount,
     } = query;
@@ -94,6 +95,10 @@ export class ReservationsService {
 
     if (active === true) {
       where.status = { in: ['CONFIRMEE', 'CHECKIN'] };
+    }
+
+    if (isWalkIn !== undefined) {
+      where.isWalkIn = isWalkIn;
     }
 
     if (minAmount !== undefined || maxAmount !== undefined) {
@@ -226,6 +231,7 @@ export class ReservationsService {
           durationHours: durationHours ?? null,
           totalAmount,
           currency: dto.currency ?? 'FCFA',
+          isWalkIn: dto.isWalkIn ?? false,
         },
       });
 

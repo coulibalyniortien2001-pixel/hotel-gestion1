@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsNumber,
   IsEnum,
+  IsBoolean,
   Min,
   Max,
   IsArray,
@@ -97,4 +98,9 @@ export class CreateReservationDto {
   @ValidateNested({ each: true })
   @Type(() => ReservationServiceItemDto)
   services?: ReservationServiceItemDto[];
+
+  @ApiPropertyOptional({ example: false, description: 'True si accueil immédiat sans réservation préalable (walk-in)' })
+  @IsOptional()
+  @IsBoolean()
+  isWalkIn?: boolean = false;
 }
